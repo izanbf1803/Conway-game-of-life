@@ -4,7 +4,7 @@
 #define DEF_W screen->info.w;
 #define DEF_H screen->info.h;
 #define DEF_DELAY 10
-#define DEF_SPAWN_PROBABILITY 4
+#define DEF_SPAWN_PROBABILITY 10
 
 #include <time.h>
 #include <stdlib.h>
