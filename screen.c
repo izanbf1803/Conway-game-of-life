@@ -1,6 +1,6 @@
 // By izanbf1803		-		http://izanbf.es/
 
-#define POINT_SIZE 4 // [NOT IMPLEMENTED]
+#define DEF_POINT_SIZE 2
 #define DEF_W screen->info.w;
 #define DEF_H screen->info.h;
 #define DEF_DELAY 10
@@ -36,7 +36,7 @@ screen_t* init_game(int argc, char** argv)
 
 	screen_t* screen = (screen_t*) malloc(sizeof(screen_t));	// Allocate screen as pointer
 	SDL_GetCurrentDisplayMode(0, &screen->info);				// Get screen info
-	screen->point_size  = POINT_SIZE; // [NOT IMPLEMENTED]
+	screen->point_size  = DEF_POINT_SIZE;
 	screen->W			= DEF_W;
 	screen->H			= DEF_H;
 	screen->delay		= DEF_DELAY;
@@ -46,6 +46,13 @@ screen_t* init_game(int argc, char** argv)
 	if (argc >= 3 && argv[2][0] != '.') screen->H = atoi(argv[2]);
 	if (argc >= 4 && argv[3][0] != '.') screen->delay = atoi(argv[3]);
 	if (argc >= 5 && argv[4][0] != '.') screen->sp = atoi(argv[4]);
+	if (argc >= 6 && argv[5][0] != '.') screen->point_size = 2*atoi(argv[5]);
+
+	if (screen->point_size < 1) screen->point_size = 1;
+	if (screen->point_size > 1 && screen->point_size % 2 != 0) screen->point_size++;
+
+	screen->W /= screen->point_size;
+	screen->H /= screen->point_size;
 
 	screen->pixels      = (unsigned char**) malloc((screen->W) * sizeof(unsigned char*));
 	screen->pixels_next = (unsigned char**) malloc((screen->W) * sizeof(unsigned char*));
@@ -54,7 +61,7 @@ screen_t* init_game(int argc, char** argv)
 		screen->pixels[x]	   = (unsigned char*) malloc((screen->H) * sizeof(unsigned char));
 		screen->pixels_next[x] = (unsigned char*) malloc((screen->H) * sizeof(unsigned char));
 		for (int y = 0; y < screen->H; y++) {
-			screen->pixels[x][y] = (rand_range(1, 100) <= screen->sp ? 1 : 0);
+			screen->pixels[x][y] = (rand_range(0, 100) <= screen->sp ? 1 : 0);
 			screen->pixels_next[x][y] = screen->pixels[x][y];
 		}
 	}

@@ -32,11 +32,11 @@ void update(screen_t* screen)
 					n++;
 				}
 			}
-			if (n < 2 || n > 3) {
-				screen->pixels_next[x][y] = 0;
+			if (screen->pixels[x][y]) {
+				screen->pixels_next[x][y] = (n == 2) || (n == 3);
 			}
-			else if (n == 3) {
-				screen->pixels_next[x][y] = 1;
+			else {
+				screen->pixels_next[x][y] = (n == 3);
 			}
 		}
 	}
@@ -50,7 +50,14 @@ void draw(screen_t* screen, SDL_Renderer* renderer)
 {
 	for (int x = 0; x < screen->W; x++) {
 		for (int y = 0; y < screen->H; y++) {
-			if (screen->pixels[x][y]) SDL_RenderDrawPoint(renderer, x, y);
+			if (screen->pixels[x][y]) {
+				SDL_Rect rect;
+				rect.x = x * screen->point_size;
+				rect.y = y * screen->point_size;
+				rect.w = screen->point_size;
+				rect.h = screen->point_size;
+				SDL_RenderFillRect(renderer, &rect);
+			}
 		}
 	}
 }
@@ -61,11 +68,12 @@ int main(int argc, char** argv)		// Inizialize all values
 
 	screen_t* screen = init_game(argc, argv);
 
-	SDL_Window* win = SDL_CreateWindow(TITLE, (screen->info.w >> 1)-(screen->W >> 1), (screen->info.h >> 1)-(screen->H >> 1), screen->W, screen->H, SDL_WINDOW_SHOWN);
+	SDL_Window* win = SDL_CreateWindow(TITLE, (screen->info.w >> 1)-(screen->W >> 1), (screen->info.h >> 1)-(screen->H >> 1),
+										screen->W * screen->point_size, screen->H * screen->point_size, SDL_WINDOW_SHOWN);
 	SDL_Renderer* renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
 	SDL_Event ev;
 
-	unsigned char quit = 0, pause = 0, mouseDown = 0;
+	unsigned char quit = 0, pause = 0, mouseDownLeft = 0, mouseDownRight = 0;
 	while (!quit) {
 		while (SDL_PollEvent(&ev)) {
 			switch (ev.type) {
@@ -92,24 +100,38 @@ int main(int argc, char** argv)		// Inizialize all values
 					}
 					break;						
 				case SDL_MOUSEBUTTONDOWN:
-					if (ev.button.button == SDL_BUTTON_LEFT) mouseDown = 1;
+					if (ev.button.button == SDL_BUTTON_LEFT) mouseDownLeft = 1;
+					if (ev.button.button == SDL_BUTTON_RIGHT) mouseDownRight = 1;
 					break;
 				case SDL_MOUSEBUTTONUP:
-					if (ev.button.button == SDL_BUTTON_LEFT) mouseDown = 0;
+					if (ev.button.button == SDL_BUTTON_LEFT) mouseDownLeft = 0;
+					if (ev.button.button == SDL_BUTTON_RIGHT) mouseDownRight = 0;
 					break;
-				case SDL_MOUSEMOTION:
-					if (mouseDown) screen->pixels[ev.button.x][ev.button.y] = 1;
+				case SDL_MOUSEMOTION: {
+					int x_ = ev.button.x / screen->point_size;
+					int y_ = ev.button.y / screen->point_size;
+					if (mouseDownLeft) {
+						screen->pixels[x_][y_] = 1;
+					}
+					else if (mouseDownRight) {
+						screen->pixels[x_][y_] = 0;
+					}
 					break;
+				}
 			}
 		}
 		SDL_RenderClear(renderer);
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 1);		// Set color = white
-		if (!pause)
-			update(screen);
+		if (!pause) update(screen);
 		draw(screen, renderer);
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 1);			// Reset color to black
 		SDL_RenderPresent(renderer);
-		SDL_Delay(screen->delay);
+		if (pause) {
+			SDL_Delay(1);
+		}
+		else {
+			SDL_Delay(screen->delay);
+		}
 	}
 
 	end_game(screen);			// Free all screen allocations
