@@ -4,7 +4,7 @@
 #define SCREEN_H
 
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 typedef struct {
 	unsigned char** pixels;			// Pixels dynamic array of arrays (Ex: pixels[500][500])

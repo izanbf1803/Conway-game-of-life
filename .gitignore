@@ -1,0 +1,7 @@
+# Ignore all but source code files
+
+*
+!.gitignore
+!*.c
+!*.h
+!*.md
