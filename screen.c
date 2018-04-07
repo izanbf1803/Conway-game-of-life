@@ -49,7 +49,6 @@ screen_t* init_game(int argc, char** argv)
 	if (argc >= 6 && argv[5][0] != '.') screen->point_size = 2*atoi(argv[5]);
 
 	if (screen->point_size < 1) screen->point_size = 1;
-	if (screen->point_size > 1 && screen->point_size % 2 != 0) screen->point_size++;
 
 	screen->W /= screen->point_size;
 	screen->H /= screen->point_size;
@@ -71,7 +70,7 @@ screen_t* init_game(int argc, char** argv)
 
 void end_game(screen_t* screen)
 {
-	for (int i = 0; i < screen->H; i++) {
+	for (int i = 0; i < screen->W; i++) {
 		free(screen->pixels[i]);
 		free(screen->pixels_next[i]);
 	}

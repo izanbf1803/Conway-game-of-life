@@ -73,6 +73,9 @@ int main(int argc, char** argv)		// Inizialize all values
 	SDL_Renderer* renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
 	SDL_Event ev;
 
+	if (argc < 3 || (argv[1][0] == '.' && argv[2][0] == '.'))
+		SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN_DESKTOP);
+
 	unsigned char quit = 0, pause = 0, mouseDownLeft = 0, mouseDownRight = 0;
 	while (!quit) {
 		while (SDL_PollEvent(&ev)) {
@@ -110,11 +113,13 @@ int main(int argc, char** argv)		// Inizialize all values
 				case SDL_MOUSEMOTION: {
 					int x_ = ev.button.x / screen->point_size;
 					int y_ = ev.button.y / screen->point_size;
-					if (mouseDownLeft) {
-						screen->pixels[x_][y_] = 1;
-					}
-					else if (mouseDownRight) {
-						screen->pixels[x_][y_] = 0;
+					if (x_ < screen->W && y_ < screen->H) {
+						if (mouseDownLeft) {
+							screen->pixels[x_][y_] = 1;
+						}
+						else if (mouseDownRight) {
+							screen->pixels[x_][y_] = 0;
+						}
 					}
 					break;
 				}
